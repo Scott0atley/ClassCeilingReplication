@@ -2,6 +2,9 @@
 /// The Class Ceiling Replication placing Ceiling Effects in Temporal Context ///
 
 
+cd "G:\Stata data and do\BHPS + US\UKDA-6614-stata\stata\stata13_se\ukhls"
+use "G:\Stata data and do\BHPS + US\UKDA-6614-stata\stata\stata13_se\ukhls\a_indresp"
+
 
 codebook a_pasoc10_cc a_panssec8_dv a_masoc10_cc a_manssec8_dv a_jbnssec8_dv a_jbsoc10_cc a_fimnlabgrs_dv a_dvage a_birthy a_sex a_racel a_plbornc a_qfhigh_dv a_health a_sf1 a_gor_dv a_jbiindb_dv a_jbsect a_jbsectpub a_jbsize a_jbft_dv, compact
 
@@ -66,6 +69,8 @@ tab nssecdom
 
 tab a_jbnssec8_dv
 
+numlabel a_jbnssec8_dv, add
+
 gen curnssec=.
 replace curnssec=1 if(a_jbnssec8_dv==1)
 replace curnssec=2 if(a_jbnssec8_dv==2)
@@ -100,12 +105,9 @@ gen nage = a_dvage
 replace nage=. if (nage<23)
 replace nage=. if (nage>69)
 
-summarize nage, detail
-gen c_age=nage - r(min)
+gen nage2=nage^2
 
-gen c_age2=c_age^2
-
-summarize c_age c_age2
+summarize nage nage2
 
 tab a_racel
 
@@ -127,7 +129,7 @@ replace ethnic=7 if(a_racel==14)
 replace ethnic=7 if(a_racel==15)
 replace ethnic=7 if(a_racel==16)
 replace ethnic=8 if(a_racel==17)
-replace ethnic=8 if(a_racel==18)
+replace ethnic=8 if(a_racel>17)
 
 label define ethnic_lbl 1"White" 2"Mixed/Multiple Ethnic Groups" 3"Indian" 4"Pakistani and Bangladeshi" 5"Chinese" 6"Any other Asian Background" 7"Black/African/Carribean/Black British" 8"Other" 
 label values ethnic ethnic_lbl
@@ -138,39 +140,8 @@ tab a_sex
 
 gen sex=a_sex
 
-tab a_plbornc
-
-gen pob=.
-replace pob=1 if(a_plbornc==-8)
-replace pob=2 if(a_plbornc==5)
-replace pob=3 if(a_plbornc==6)
-replace pob=4 if(a_plbornc==7)
-replace pob=5 if(a_plbornc==8)
-replace pob=6 if(a_plbornc==9)
-replace pob=7 if(a_plbornc==10)
-replace pob=8 if(a_plbornc==11)
-replace pob=9 if(a_plbornc==12)
-replace pob=10 if(a_plbornc==13)
-replace pob=11 if(a_plbornc==14)
-replace pob=12 if(a_plbornc==15)
-replace pob=13 if(a_plbornc==16)
-replace pob=14 if(a_plbornc==17)
-replace pob=15 if(a_plbornc==18)
-replace pob=16 if(a_plbornc==19)
-replace pob=17 if(a_plbornc==20)
-replace pob=18 if(a_plbornc==21)
-replace pob=19 if(a_plbornc==22)
-replace pob=20 if(a_plbornc==23)
-replace pob=21 if(a_plbornc==24)
-replace pob=22 if(a_plbornc==25)
-replace pob=23 if(a_plbornc==26)
-replace pob=24 if(a_plbornc==27)
-replace pob=25 if(a_plbornc==28)
-
-label define pob_lbl 1"UK" 2"republic of ireland" 3"france" 4"germany" 5"italy" 6"spain" 7"poland" 8"cyprus" 9"turkey" 10"australia" 11"new zealand" 12"canada" 13"u.s.a" 14"china/hong kong" 15"india" 16"pakistan" 17"bangladesh" 18"sri lanka" 19"kenya" 20"ghana" 21"nigeria" 22"uganda" 23"south africa" 24"jamaica" 25"other"
-label values pob pob_lbl
-
-tab pob
+label define sex_lbl 1"Male" 2"Female"
+label values sex sex_lbl
 
 tab a_health
 
@@ -191,6 +162,7 @@ replace genhealth=. if(genhealth<1)
 label define genhealth_lbl 1"excellent" 2"very good" 3"good" 4"fair" 5"poor"
 label values genhealth genhealth_lbl
 
+tab genhealth
 
 tab a_qfhigh_dv
 
@@ -211,21 +183,39 @@ replace hed=3 if(a_qfhigh_dv==12)
 replace hed=3 if(a_qfhigh_dv==13)
 replace hed=3 if(a_qfhigh_dv==14)
 replace hed=3 if(a_qfhigh_dv==15)
-replace hed=4 if(a_qfhigh_dv==16)
+replace hed=3 if(a_qfhigh_dv==16)
+
 replace hed=4 if(a_qfhigh_dv==96)
 
-label define hed_lbl 1"degree" 2"A level" 3"O level" 4"Other"
+label define hed_lbl 1"NVQ4+" 2"NVQ3" 3"NVQ1-2" 4"None"
 label values hed hed_lbl
 
 tab hed
 
 summarize a_jbhrs
 
-gen labhours = a_jbhrs 
-replace labhours=. if (labhours<1)
 
-summarize labhours, detail
-gen c_labhours=labhours - r(min)
+tab a_jbes2000 
+gen status=.
+replace status=1 if (a_jbes2000==1)
+replace status=1 if (a_jbes2000==2)
+replace status=1 if (a_jbes2000==3)
+
+replace status=2 if (a_jbes2000==4)
+replace status=2 if (a_jbes2000==5)
+replace status=2 if (a_jbes2000==6)
+replace status=2 if (a_jbes2000==7)
+
+label define status_lbl 1"Self-Employed" 2"Employed"
+label values status status_lbl
+
+tab status
+
+gen labhours=.
+replace labhours=a_jbhrs if status==2
+replace labhours=a_jshrs if status==1
+replace labhours=. if (labhours<1)
+summarize labhours
 
 tab a_gor_dv
 
@@ -237,8 +227,10 @@ gen sector=.
 replace sector=1 if(a_jbsect==1)
 replace sector=1 if(a_jbsect==2)
 replace sector=2 if(a_jbsectpub>1)
+replace sector=3 if(status==1)
 
-label define sector_lbl 1"private" 2"public"
+
+label define sector_lbl 1"private" 2"public" 3"Self-Employed"
 label values sector sector_lbl
 
 tab sector
@@ -295,8 +287,10 @@ replace industry=9 if(industry==31)
 replace industry=9 if(industry==32)
 replace industry=9 if(industry==34)
 
+replace industry=10 if(status==1)
 
-label define industry_lbl 1"Public Admin, education, and health" 2"Agriculture, forestry, and fishing" 3"Energy and water" 4"Manufacturing" 5"Construction" 6"Distribution, hotels, and restaurants" 7"Transport and Communication" 8"Banking and finance" 9"Other services" 
+
+label define industry_lbl 1"Public Admin, education, and health" 2"Agriculture, forestry, and fishing" 3"Energy and water" 4"Manufacturing" 5"Construction" 6"Distribution, hotels, and restaurants" 7"Transport and Communication" 8"Banking and finance" 9"Other services" 10"Self-Employed"
 label values industry industry_lbl
 
 tab industry
@@ -316,6 +310,17 @@ replace size=3 if(size==6)
 replace size=3 if(size==7)
 replace size=4 if(size>7)
 
+replace size=1 if(a_jssize==1)
+replace size=1 if(a_jssize==2)
+replace size=1 if(a_jssize==3)
+replace size=2 if(a_jssize==4)
+replace size=3 if(a_jssize==5)
+replace size=3 if(a_jssize==6)
+replace size=3 if(a_jssize==7)
+replace size=4 if(a_jssize==9)
+replace size=1 if(a_jssize==10)
+
+
 label define size_lbl 1"Less than 25" 2"25-49" 3"50-499" 4"500+"
 label values size size_lbl
 
@@ -323,34 +328,101 @@ tab size
 
 tab a_jbsoc00_cc
 
+numlabel a_jbsoc00_cc, add
+
+tab a_jbsoc00_cc
 
 
+codebook adjincome yearlyincome nssecdom nage nage2 ethnic sex healthy genhealth hed labhours a_gor_dv curnssec sector industry size a_jbsoc00_cc, compact
 
+keep adjincome nssecdom nage nage2 ethnic sex healthy genhealth hed labhours a_gor_dv curnssec sector industry size a_jbsoc00_cc yearlyincome
+	
 
-codebook adjincome yearlyincome nssecdom c_age c_age2 ethnic sex pob healthy genhealth hed c_labhours a_gor_dv curnssec sector industry size a_jbsoc00_cc, compact
+*CCA*
 
-keep adjincome nssecdom c_age c_age2 ethnic sex pob healthy genhealth hed c_labhours a_gor_dv curnssec sector industry size a_jbsoc00_cc yearlyincome
+misstable summarize adjincome nssecdom nage nage2 ethnic sex healthy genhealth hed labhours a_gor_dv curnssec sector industry size a_jbsoc00_cc
 
-egen miss1=rmiss(adjincome nssecdom c_age c_age2 ethnic sex pob healthy genhealth hed c_labhours a_gor_dv curnssec sector industry size a_jbsoc00_cc)
+misstable patterns adjincome nssecdom nage nage2 ethnic sex healthy genhealth hed labhours a_gor_dv curnssec sector industry size a_jbsoc00_cc
+
+*sector, industry, and soc codes wipe out small employers and own account workers from curnssec*
+
+egen miss1=rmiss(adjincome nssecdom nage nage2 ethnic sex healthy genhealth labhours a_gor_dv curnssec sector industry size a_jbsoc00_cc)
 tab miss1
 keep if miss1==0
 
-numlabel _all, add
 
-codebook adjincome nssecdom c_age c_age2 ethnic sex pob healthy genhealth hed c_labhours a_gor_dv curnssec sector industry size a_jbsoc00_cc, compact
+
+
+* Re-code for most accurate Model (1) *
+
+tab nssecdom
+
+gen classorigin=.
+replace classorigin=1 if(nssecdom==1)
+replace classorigin=1 if(nssecdom==2)
+replace classorigin=1 if(nssecdom==3)
+
+replace classorigin=2 if(nssecdom==4)
+replace classorigin=2 if(nssecdom==5)
+replace classorigin=2 if(nssecdom==6)
+
+replace classorigin=3 if(nssecdom==7)
+replace classorigin=3 if(nssecdom==8)
+
+label define classorigin_lbl 1"Professional" 2"Intermediate" 3"Working Class"
+label values classorigin classorigin_lbl
+
+tab classorigin
+
+tab ethnic 
+
+tab sex
+
+tab healthy
+
+tab hed
+
+summarize labhours
+
+tab a_gor_dv
+
+tab curnssec
+
+gen nsseccat=.
+replace nsseccat=1 if(curnssec==1)
+replace nsseccat=1 if(curnssec==2)
+
+replace nsseccat=2 if(curnssec==3)
+
+replace nsseccat=3 if(curnssec==4)
+replace nsseccat=3 if(curnssec==5)
+replace nsseccat=3 if(curnssec==6)
+replace nsseccat=3 if(curnssec==7)
+replace nsseccat=3 if(curnssec==8)
+
+label define nsseccat_lbl 1"Higher Managerial & Professional" 2"Lower Managers & Professionals" 3"Any Other Category"
+label values nsseccat nsseccat_lbl
+tab nsseccat
+
+tab industry
+
+tab size
+
+
+
+codebook adjincome nssecdom nage nage2 ethnic sex healthy genhealth hed labhours a_gor_dv curnssec sector industry size a_jbsoc00_cc, compact
 
 label variable yearlyincome "Yearly Labour Income"
 label variable adjincome "Yearly Labour Income Adjusted for 2016 Inflation"
 label variable nssecdom "Semi-Dominant NS-SEC Social Origins"
-label variable c_age "Age Centered"
-label variable c_age2 "Age Centered Squared"
+label variable nage "Age"
+label variable nage2 "Age Squared"
 label variable ethnic "Ethnicity"
 label variable sex "Sex"
-label variable pob "Place of Birth"
 label variable healthy "Serious Health Issue"
 label variable genhealth "General Health"
 label variable hed "Highest Educational Qualification"
-label variable c_labhours "Weekly Labour Hours Centered"
+label variable labhours "Weekly Labour Hours"
 label variable a_gor_dv "Governmental Regions"
 label variable curnssec "NS-SEC Current Job"
 label variable sector "Public or Private Sector"
@@ -358,12 +430,12 @@ label variable industry "Industry of Labour"
 label variable size "Number of Employees at Work"
 
 *descriptive statistics*
+cd "G:\Stata data and do\Tables and Figures\Class Ceiling"
 
-
-table (var) (), statistic(fvfrequency nssecdom ethnic sex pob healthy genhealth hed a_gor_dv curnssec sector industry size) ///
-					statistic(fvpercent nssecdom ethnic sex pob healthy genhealth hed a_gor_dv curnssec sector industry size) ///
-					statistic(mean adjincome c_age c_age2 c_labhours) ///  
-					statistic(sd adjincome c_age c_age2 c_labhours) 
+table (var) (), statistic(fvfrequency nssecdom ethnic sex healthy genhealth hed a_gor_dv curnssec sector industry size) ///
+					statistic(fvpercent nssecdom ethnic sex healthy genhealth hed a_gor_dv curnssec sector industry size) ///
+					statistic(mean adjincome nage nage2 labhours) ///  
+					statistic(sd adjincome nage nage2 labhours) 
 					
 * Organise the column structure of the table			
 collect remap result[fvfrequency mean] = Col[1 1] 
@@ -381,17 +453,16 @@ collect get n = `r(N)', tag(Col[2] var[n])
 collect layout (var[1.nssecdom 2.nssecdom 3.nssecdom 4.nssecdom 5.nssecdom 6.nssecdom 7.nssecdom 8.nssecdom ///
 						1.ethnic 2.ethnic 3.ethnic 4.ethnic 5.ethnic 6.ethnic 7.ethnic 8.ethnic ///
 						1.sex 2.sex ///
-						1.pob 2.pob 3.pob 4.pob 5.pob 6.pob 7.pob 8.pob 9.pob 10.pob 11.pob 12.pob 13.pob 14.pob 16.pob 17.pob 18.pob 19.pob 20.pob 21.pob 22.pob 23.pob 24.pob ///
 						1.healthy 2.healthy ///
 						1.genhealth 2.genhealth 3.genhealth 4.genhealth 5.genhealth ///
 						1.hed 2.hed 3.hed 4.hed ///
 						1.a_gor_dv 2.a_gor_dv 3.a_gor_dv 4.a_gor_dv 5.a_gor_dv 6.a_gor_dv 7.a_gor_dv 8.a_gor_dv 9.a_gor_dv 10.a_gor_dv 11.a_gor_dv 12.a_gor_dv ///
 						1.curnssec 2.curnssec 3.curnssec 4.curnssec 5.curnssec 6.curnssec 7.curnssec 8.curnssec ///
-						1.sector 2.sector ///
-						1.industry 2.industry 3.industry 4.industry 5.industry 6.industry 7.industry 8.industry 9.industry ///
+						1.sector 2.sector 3.sector ///
+						1.industry 2.industry 3.industry 4.industry 5.industry 6.industry 7.industry 8.industry 9.industry 10.industry ///
 						1.size 2.size 3.size 4.size ////
 						empty mylabel ///
-						adjincome c_age c_age2 c_labhours ///
+						adjincome nage nage2 labhours ///
 						empty n]) (Col[1 2])
 * label the columns for the categorical variable (n and %).
 collect label levels Col 1 "n" 2 "%"
@@ -401,9 +472,9 @@ collect style header Col, title(hide)
 collect style header var[empty mylabel], level(hide)
 collect style row stack, nobinder
 * edit the numerical formats of the numbers shown (i.e. number of decimal places).
-collect style cell var[nssecdom ethnic sex pob healthy genhealth hed a_gor_dv curnssec sector industry size a_jbsoc00_cc]#Col[1], nformat(%6.0fc) 
-collect style cell var[nssecdom ethnic sex pob healthy genhealth hed a_gor_dv curnssec sector industry size a_jbsoc00_cc]#Col[2], nformat(%6.2f) sformat("%s%%") 	
-collect style cell var[adjincome c_age c_age2 c_labhours], nformat(%6.2f)
+collect style cell var[nssecdom ethnic sex healthy genhealth hed a_gor_dv curnssec sector industry size a_jbsoc00_cc]#Col[1], nformat(%6.0fc) 
+collect style cell var[nssecdom ethnic sex healthy genhealth hed a_gor_dv curnssec sector industry size a_jbsoc00_cc]#Col[2], nformat(%6.2f) sformat("%s%%") 	
+collect style cell var[adjincome nage nage2 labhours], nformat(%6.2f)
 * remove border above row-header and results 
 collect style cell border_block[item row-header], border(top, pattern(nil))
 * add a title to the table
@@ -418,10 +489,43 @@ collect export "ccdescstats.docx", replace
 
 *data vis*
 
-cd "/Users/ScottOatley/Documents/CC Vis"
+*sankey diagram*
 
+*mobility sankey*
+
+capture drop gh_origin
+gen gh_origin = nssecdom 
+lab define sankeylabs 1"1.1" 2"1.2" 3"2" 4"3" 5"4" 6"5" 7"6" 8"7"
+lab val gh_origin sankeylabs
+
+capture drop gh_dest
+gen gh_dest = curnssec
+lab val gh_dest sankeylabs
+
+capture drop count_gh 
+gen count_gh = !missing(nssecdom)
+
+gen coh=1
 
 global gnote "Data from wave 1 UKHLS (Uni. of Essex, Institute for Social and Economic Research, 2022)"
+
+global gsannkey "Social Mobility from Origins (Age 14) to Current Destination"
+
+
+sankey count_gh if !missing(gh_dest) ///
+	, from(gh_origin) to (gh_dest) by(coh) ///
+	gap(8) ///
+	smooth(6) ///
+	sort1(name, reverse) ///
+	labs(2) noval ///
+	laba(0) labpos(3) labg(0) offset(5) showtot ///
+	ctitles(Origin Destination) ctsize(2.2) ctg(-1000) ///
+	palette(d3 20) ///
+	title(`"{fontface "Times New Roman":$gsannkey}"', size(3)) ///
+	note(`"{it:{fontface "Times New Roman":$gnote}}"', size(2.2)) ///
+	name(sankey_gh, replace) 
+	
+	graph save "G:\Stata data and do\Tables and Figures\Class Ceiling\sankey.gph", replace 
 
 *Hist Example*
 
@@ -430,64 +534,53 @@ tab1 revsex* /* revsex1 = male */
 			   /* revsex2 = female */
 
 		twoway ///
-	(hist revsex1, color(purple%50) bin(5) ///
-		legend(label(1 "Male"))) ///
-	(hist revsex2, color(orange%50) bin(5)  ///
-		legend(label(2 "Female") pos(1) col(1))) 
+	(hist revsex1, percent color(purple%25) bin(30) ///
+		legend(label(1 "{stSerif:Male}"))) ///
+	(hist revsex2, percent color(orange%25) bin(30)  ///
+		legend(label(2 "{stSerif:Female}") pos(6) col(2)) ///
+		title("{stSerif:Graph 1. Adjusted Annual Labour Income of {bf:Male} and{bf: Female} respondents}", ///
+		size(med)) ///
+		ytitle("{stSerif:Percent}", size(vsmall)) ///
+		xtitle("{stSerif:Yearly Income £s (Adjusted for 2016 Inflation)}", size(vsmall)) ///
+		note(`"{it:{fontface "Times New Roman":$gnote}}"', size(small) pos(6)))
+	
+graph save "G:\Stata data and do\Tables and Figures\Class Ceiling\sexincome.gph", replace 
+	
+	
+seperate adjincome, by(curnssec) gen(revclass)
+tab1 revclass*
 
 		twoway ///
-	(hist revsex1, color(purple%25) bin(5) ///
-		legend(label(1 "{stSerif:Male}"))) ///
-	(hist revsex2, color(orange%25) bin(5)  ///
-		legend(label(2 "{stSerif:Female}") pos(6) col(2)) /// * lets also get rid of 'Impact' 
-		title("{stSerif:Graph 1. Adjusted Annual Labour Income of {bf:Male} and {bf: Female} respondents}", ///
-		size(med)) ///
-		ytitle("Test", size(vsmall)) ///
-	/// * here, rather than typing out what i wnat in the note, i have used 
-	/// * a global '$gnote' instead:
-	note(`"{it:{fontface "Times New Roman":$gnote}}"', size(small) pos(6)))
-	
-graph save "/Users/ScottOatley/Documents/CC Vis/sexincome.gph", replace 
-
-
-
-
-
-
-*Box Plot Example*
-graph box adjincome, over(genhealth) asyvars showyvars leg(off)
-
-graph box adjincome ///
-	, over(nssecdom) asyvars showyvars leg(off) ///
-	box(1, color(navy%95) lcolor(black)) ///
-	box(2, color(cranberry%95) lcolor(black)) ///
-	box(3, color(dkorange%95) lcolor(black)) /// 
-	box(4, color(forest_green%95) lcolor(black)) ///
-	box(5, color(gold%95) lcolor(black)) ///
-	box(6, color(lavender%95) lcolor(black)) ///
-	box(7, color(sienna%95) lcolor(black)) ///
-	box(8, color(emerald%95) lcolor(black)) ///
-	marker(1, mcolor(navy%25) mlcolor(black%25) mlwidth(thin) msymbol(diamond)) ///
-	marker(2, mcolor(cranberry%25) mlcolor(black%25) mlwidth(thin) msymbol(square)) ///
-	marker(3, mcolor(dkorange%25) mlcolor(black%25) mlwidth(thin) msymbol(triangle)) ///
-	marker(4, mcolor(forest_green%25) mlcolor(black%25) mlwidth(thin) msymbol(circle)) ///
-	title("{stSerif:Graph 2.BMI Distribution by Last Voted Political Party}") ///
-	ytitle("BMI Score", size(small)) ///
-	note(`"{it:{fontface "Times New Roman":$gnote}}"', size(small) pos(6))
-	graph save $path_output/bmi.gph, replace 
+	(hist revclass1, percent color(dkgreen%25) bin(30) ///
+		legend(label(1 "{stSerif:1.1}"))) ///
+	(hist revclass2, percent color(orange_red%25) bin(30)  ///
+		legend(label(2 "{stSerif:1.2}"))) ///
+	(hist revclass3, percent color(navy%25) bin(30) ///
+		legend(label(3 "{stSerif:2}"))) ///
+	(hist revclass4, percent color(maroon%25) bin(30) ///
+		legend(label(4 "{stSerif:3}"))) ///
+	(hist revclass5, percent color(teal%25) bin(30) ///
+		legend(label(5 "{stSerif:4}"))) ///
+	(hist revclass6, percent color(magenta%25) bin(30) ///
+		legend(label(6 "{stSerif:5}"))) ///
+	(hist revclass7, percent color(cyan%25) bin(30) ///
+		legend(label(7 "{stSerif:6}"))) ///
+	(hist revclass8, percent color(lime%25) bin(30) ///
+		legend(label(8 "{stSerif:7}") pos(6) col(7)) ///
+		title("{stSerif:Graph 2. Adjusted Annual Labour Income of {bf:Current NS-SEC} respondents}", size(med)) ///
+		ytitle("{stSerif:Percent}", size(vsmall)) ///
+		xtitle("{stSerif:Yearly Income £s (Adjusted for 2016 Inflation)}", size(vsmall)) ///
+		note(`"{it:{fontface "Times New Roman":$gnote}}"', size(vsmall) pos(6)))
+		
+graph save "G:\Stata data and do\Tables and Figures\Class Ceiling\classincome.gph", replace 
 	
 	
-	
-	
-
 *model*
 
-tab curnssec nssecdom
+regress adjincome i.classorigin nage nage2 i.ethnic i.sex i.healthy i.hed labhours ib(8).a_gor_dv i.nsseccat i.sector i.industry ib(4).size i.a_jbsoc00_cc
 
 
-regress yearlyincome i.nssecdom c_age c_age2 i.ethnic i.sex i.pob i.healthy i.genhealth i.hed c_labhours ib(8).a_gor_dv i.curnssec i.sector i.industry ib(4).size i.a_jbsoc00_cc
-
-regress adjincome i.nssecdom c_age c_age2 i.ethnic i.sex i.pob i.healthy i.genhealth i.hed c_labhours ib(8).a_gor_dv i.curnssec i.sector i.industry ib(4).size i.a_jbsoc00_cc
+regress adjincome i.nssecdom nage nage2 i.ethnic i.sex i.healthy i.genhealth i.hed labhours ib(8).a_gor_dv i.curnssec i.sector i.industry ib(4).size i.a_jbsoc00_cc
 
 est store linearadj
 
@@ -497,8 +590,8 @@ predict pr_inc
 global scatteroptions "mcolor(%15) msize(tiny)"
 
 twoway  ///
-	(scatter adjincome c_age, $scatteroptions ) ///
-	(scatter pr_inc c_age, $scatteroptions )
+	(scatter adjincome nage, $scatteroptions ) ///
+	(scatter pr_inc nage, $scatteroptions )
 	
 	
 *Model assumptions*
@@ -509,13 +602,43 @@ hist resids, normal
 
 qnorm resids
 
-scatter resids c_age, $scatteroptions
+scatter resids nage, $scatteroptions
 
 scatter resids a_gor_dv, $scatteroptions
 
 
 
 *An individual that has social origins from 1.1, is 23, white, a man, born in the UK, healthy and has excellent general health with a degree from the south east whose job is 1.1 in the private sector in public admin in a firm 500+ and is a corporate manager earns £52915.19 a year compared to their peers.* 
+
+* the oaxaca that the class ceiling use requires a dummy for all cat varaibles. They use a working class/privileged origin dependent variable. The former is defined through ns-sec 6+7 from the 8 class version and the latter is from 1+2*
+
+gen oax=.
+replace oax=0 if(nssecdom==1)
+replace oax=0 if(nssecdom==2)
+replace oax=0 if(nssecdom==3)
+
+
+replace oax=1 if(nssecdom==7)
+replace oax=1 if(nssecdom==8)
+
+
+
+oaxaca adjincome, by(oax)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -532,13 +655,13 @@ scatter resids a_gor_dv, $scatteroptions
 
 /// This will be a seperate Paper ///
 * seeing if a random effects model is needed?*
-mixed yearlyincome i.nssecdom c_age c_age2 i.ethnic i.sex i.pob i.healthy i.genhealth i.hed c_labhours i.curnssec i.sector i.industry i.size ///
+mixed yearlyincome i.nssecdom nage nage2 i.ethnic i.sex i.healthy i.genhealth i.hed labhours i.curnssec i.sector i.industry i.size ///
     ||a_gor_dv:, mle
 	
 	estat icc
 	*not really needed, linear regression better*
 	
-mixed yearlyincome i.nssecdom c_age c_age2 i.ethnic i.sex i.pob i.healthy i.genhealth i.hed c_labhours i.curnssec i.sector i.industry i.size ///
+mixed yearlyincome i.nssecdom nage nage2 i.ethnic i.sex i.healthy i.genhealth i.hed labhours i.curnssec i.sector i.industry i.size ///
     ||a_jbsoc00_cc:, mle
 
 		estat icc
@@ -546,7 +669,7 @@ mixed yearlyincome i.nssecdom c_age c_age2 i.ethnic i.sex i.pob i.healthy i.genh
 	
 
 
-mixed yearlyincome i.nssecdom c_age c_age2 i.ethnic i.sex i.pob i.healthy i.genhealth i.hed c_labhours i.curnssec i.sector i.industry i.size ///
+mixed yearlyincome i.nssecdom nage nage2 i.ethnic i.sex i.healthy i.genhealth i.hed labhours i.curnssec i.sector i.industry i.size ///
     ||_all:R.a_jbsoc00_cc ///
     ||_all:R.a_gor_dv, mle
 	
